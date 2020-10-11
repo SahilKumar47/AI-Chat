@@ -5,7 +5,7 @@ module.exports = gql`
     email: String!
     username: String!
     createdAt: String!
-    # token: String!
+    token: String!
   }
   type Query {
     getUsers: [User]!

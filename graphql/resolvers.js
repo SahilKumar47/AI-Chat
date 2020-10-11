@@ -1,7 +1,10 @@
 const { validateUser, validateLogin } = require("../utils/validators");
 const { UserInputError, AuthenticationError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 const { User } = require("../models");
+const { CHAT_SECRET_KEY } = require("../config/env.json");
 
 module.exports = {
   Query: {
@@ -15,20 +18,38 @@ module.exports = {
     },
     login: async (_, args) => {
       const { username, password } = args;
+      //validation
       let { errors, valid } = validateLogin(username, password);
       try {
+        //check validation
+        if (!valid) throw new UserInputError("Errors", { errors });
+        //Find User
         const user = await User.findOne({ where: { username } });
         if (!user) {
           errors.username = "user not found!";
           throw new UserInputError("user not found", { errors });
         }
+        //check password
         const correctPassword = await bcrypt.compare(password, user.password);
         console.log(correctPassword);
         if (!correctPassword) {
           errors.password = "password is incorrect";
           throw new AuthenticationError("password is incorrect", { errors });
         }
-        return user;
+        //generate token
+        const token = jwt.sign(
+          {
+            username: user.username,
+            email: user.email,
+          },
+          CHAT_SECRET_KEY,
+          { expiresIn: 60 * 60 }
+        );
+        return {
+          ...user.toJSON(),
+          createdAt: user.createdAt.toISOString(),
+          token,
+        };
       } catch (err) {
         console.log(err);
         throw err;
