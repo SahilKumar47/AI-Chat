@@ -1,5 +1,5 @@
-const { validateUser } = require("../utils/validators");
-const { UserInputError } = require("apollo-server");
+const { validateUser, validateLogin } = require("../utils/validators");
+const { UserInputError, AuthenticationError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
 const { User } = require("../models");
 
@@ -13,36 +13,68 @@ module.exports = {
         console.log(err);
       }
     },
+    login: async (_, args) => {
+      const { username, password } = args;
+      let { errors, valid } = validateLogin(username, password);
+      try {
+        const user = await User.findOne({ where: { username } });
+        if (!user) {
+          errors.username = "user not found!";
+          throw new UserInputError("user not found", { errors });
+        }
+        const correctPassword = await bcrypt.compare(password, user.password);
+        console.log(correctPassword);
+        if (!correctPassword) {
+          errors.password = "password is incorrect";
+          throw new AuthenticationError("password is incorrect", { errors });
+        }
+        return user;
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    },
   },
   Mutation: {
     register: async (_, args) => {
       let { username, email, password, confirmPassword } = args;
+      let { errors, valid } = validateUser(
+        username,
+        email,
+        password,
+        confirmPassword
+      );
+
       try {
-        const { valid, errors } = validateUser(
-          username,
-          email,
-          password,
-          confirmPassword
-        );
-        const userByUsername = await User.findOne({ where: { username } });
-        const userByEmail = await User.findOne({ where: { email } });
-        if (userByUsername) errors.username = "username is already taken";
-        if (userByEmail) errors.email = "email is already taken";
         if (!valid) {
-          console.log(errors);
           throw errors;
         }
-        password = await bcrypt.hash(password, 12);
+
+        // Hash password
+        password = await bcrypt.hash(password, 6);
+
+        // Create user
         const user = await User.create({
           username,
           email,
           password,
-          createdAt: new Date().toISOString(),
         });
+
+        // Return user
         return user;
       } catch (err) {
         console.log(err);
-        throw new UserInputError("bad input", { errors: err });
+        if (err.name === "SequelizeUniqueConstraintError") {
+          err.errors.forEach(
+            (e) =>
+              (errors[e.path.split(".")[1]] = `${
+                e.path.split(".")[1]
+              } is already taken`)
+          );
+        } else if (err.name === "SequelizeValidationError") {
+          err.errors.forEach((e) => (errors[e.path] = e.message));
+        }
+        throw new UserInputError("Bad input", { errors });
       }
     },
   },
