@@ -1,17 +1,50 @@
 import React, { useState } from "react";
 import { Row, Col, Button, Form } from "react-bootstrap";
-import { Flip, Zoom } from "react-reveal";
+import { Flip, Zoom, Fade } from "react-reveal";
+import { gql, useMutation } from "@apollo/client";
+
+const REGISTER_USER = gql`
+  mutation registerUser(
+    $username: String!
+    $email: String!
+    $password: String!
+    $confirmPassword: String!
+  ) {
+    register(
+      username: $username
+      email: $email
+      password: $password
+      confirmPassword: $confirmPassword
+    ) {
+      username
+      email
+      createdAt
+    }
+  }
+`;
 
 const Register = () => {
   const [variables, setVariables] = useState({
-    email: "",
     username: "",
+    email: "",
     password: "",
     confirmPassword: "",
   });
+  const [errors, setErrors] = useState({});
+  const [registerUser, { loading }] = useMutation(REGISTER_USER, {
+    update(_, res) {
+      console.log(res);
+    },
+    onError: (err) => {
+      console.log(err.graphQLErrors[0].extensions.errors);
+      setErrors(err.graphQLErrors[0].extensions.errors);
+    },
+  });
   const submitRegisterForm = (e) => {
     e.preventDefault();
+    setErrors({});
     console.log(variables);
+    registerUser({ variables });
   };
   return (
     <Row className="bg-white py-5 justify-content-center">
@@ -22,9 +55,12 @@ const Register = () => {
         <Form>
           <Zoom left>
             <Form.Group>
-              <Form.Label>Email address</Form.Label>
+              <Form.Label className={errors.email && "text-danger"}>
+                {errors.email ?? "Email address"}
+              </Form.Label>
               <Form.Control
                 type="email"
+                isInvalid={errors.email}
                 placeholder="Enter email"
                 value={variables.email}
                 onChange={(e) =>
@@ -35,8 +71,11 @@ const Register = () => {
           </Zoom>
           <Zoom right delay={100}>
             <Form.Group>
-              <Form.Label>Username</Form.Label>
+              <Form.Label className={errors.username && "text-danger"}>
+                {errors.username ?? "Username"}
+              </Form.Label>
               <Form.Control
+                isInvalid={errors.username}
                 type="text"
                 placeholder="Enter Username"
                 value={variables.username}
@@ -48,8 +87,11 @@ const Register = () => {
           </Zoom>
           <Zoom left delay={200}>
             <Form.Group>
-              <Form.Label>Password</Form.Label>
+              <Form.Label className={errors.password && "text-danger"}>
+                {errors.password ?? "Password"}
+              </Form.Label>
               <Form.Control
+                isInvalid={errors.password}
                 type="password"
                 placeholder="Password"
                 value={variables.password}
@@ -61,7 +103,9 @@ const Register = () => {
           </Zoom>
           <Zoom right delay={300}>
             <Form.Group>
-              <Form.Label>Confirm Password</Form.Label>
+              <Form.Label className={errors.confirmPassword && "text-danger"}>
+                {errors.confirmPassword ?? "Confirm Password"}
+              </Form.Label>
               <Form.Control
                 type="password"
                 placeholder="Re-enter password"
@@ -81,8 +125,9 @@ const Register = () => {
                 variant="success"
                 type="submit"
                 onClick={submitRegisterForm}
+                disabled={loading}
               >
-                Register
+                {loading ? "Loading.." : "Register"}
               </Button>
             </div>
           </Zoom>
