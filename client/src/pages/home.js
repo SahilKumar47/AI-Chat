@@ -1,7 +1,29 @@
 import React from "react";
+import { Row, Col, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
-const Home = () => {
-  return <h1>Home</h1>;
+import { useAuthDispatch } from "../context/authContext";
+import { useAuthState } from "../context/authContext";
+const Home = ({ history }) => {
+  const dispatch = useAuthDispatch();
+  console.log(state);
+  const logout = () => {
+    dispatch({ type: "LOGOUT" });
+    history.push("/login");
+  };
+  return (
+    <Row>
+      <Link to="/login">
+        <Button variant="link">Login</Button>
+      </Link>
+      <Link to="/register">
+        <Button variant="link">Register</Button>
+      </Link>
+      <Button variant="link" onClick={logout}>
+        Logout
+      </Button>
+    </Row>
+  );
 };
 
 export default Home;
