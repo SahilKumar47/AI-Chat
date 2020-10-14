@@ -1,11 +1,11 @@
-const { validateUser, validateLogin } = require("../utils/validators");
+const { validateUser, validateLogin } = require("../../utils/validators");
 const { UserInputError, AuthenticationError } = require("apollo-server");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
-const { User, Message } = require("../models");
-const { CHAT_SECRET_KEY } = require("../config/env.json");
+const { User } = require("../../models");
+const { CHAT_SECRET_KEY } = require("../../config/env.json");
 
 module.exports = {
   Query: {
@@ -102,28 +102,6 @@ module.exports = {
           err.errors.forEach((e) => (errors[e.path] = e.message));
         }
         throw new UserInputError("Bad input", { errors });
-      }
-    },
-    sendMessage: async (_, { to, content }, { user }) => {
-      try {
-        if (!user) throw new AuthenticationError("unauthenticated");
-        const recipient = await User.findOne({ where: { username: to } });
-        if (!recipient) throw new UserInputError("User not found");
-        else if (recipient.username === user.username) {
-          throw new UserInputError("Can't send message to yourself");
-        }
-        if (content.trim() === "") {
-          throw new UserInputError("Message is empty");
-        }
-        const message = await Message.create({
-          from: user.username,
-          to,
-          content,
-        });
-        return message;
-      } catch (error) {
-        console.log(error);
-        throw error;
       }
     },
   },
