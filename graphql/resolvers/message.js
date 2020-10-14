@@ -3,6 +3,16 @@ const { UserInputError, AuthenticationError } = require("apollo-server");
 const { User, Message } = require("../../models");
 
 module.exports = {
+  Query: {
+    getMessages: async (_, { from }, { user }) => {
+      try {
+        if (!user) throw new AuthenticationError("Unauthenticated");
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    },
+  },
   Mutation: {
     sendMessage: async (_, { to, content }, { user }) => {
       try {
