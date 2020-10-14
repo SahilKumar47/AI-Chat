@@ -5,10 +5,12 @@ const typeDefs = require("./graphql/typedef");
 
 const resolvers = require("./graphql/resolvers");
 
+const contextMiddleware = require("./utils/contextMiddleware");
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: (ctx) => ctx,
+  context: contextMiddleware,
 });
 
 server

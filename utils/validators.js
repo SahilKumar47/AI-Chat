@@ -16,7 +16,7 @@ module.exports.validateUser = (username, email, password, confirmPassword) => {
   } else if (password.length < 6) {
     errors.password = "Password should be more than 6 characters";
   } else if (password !== confirmPassword) {
-    errors.confirmPassword = "passwords don't match";
+    errors.confirmPassword = "Passwords do not match";
   }
   return {
     errors,

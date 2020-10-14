@@ -4,24 +4,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
-const { User } = require("../models");
+const { User, Message } = require("../models");
 const { CHAT_SECRET_KEY } = require("../config/env.json");
 
 module.exports = {
   Query: {
-    getUsers: async (_, __, context) => {
+    getUsers: async (_, __, { user }) => {
       try {
-        let user;
-        if (context.req && context.req.headers.authorization) {
-          const token = context.req.headers.authorization.split("Bearer ")[1];
-          jwt.verify(token, CHAT_SECRET_KEY, (err, decodedToken) => {
-            if (err) {
-              throw new AuthenticationError("Invalid/expired token");
-            }
-            user = decodedToken;
-            console.log(user);
-          });
-        }
+        if (!user) throw new AuthenticationError("Invalid/expired token");
+
         const users = await User.findAll({
           where: { username: { [Op.ne]: user.username } },
         });
@@ -41,15 +32,15 @@ module.exports = {
         //Find User
         const user = await User.findOne({ where: { username } });
         if (!user) {
-          errors.username = "user not found!";
-          throw new UserInputError("user not found", { errors });
+          errors.username = "User not found!";
+          throw new UserInputError("User not found", { errors });
         }
         //check password
         const correctPassword = await bcrypt.compare(password, user.password);
         console.log(correctPassword);
         if (!correctPassword) {
-          errors.password = "password is incorrect";
-          throw new AuthenticationError("password is incorrect", { errors });
+          errors.password = "Password is incorrect";
+          throw new UserInputError("password is incorrect", { errors });
         }
         //generate token
         const token = jwt.sign(
@@ -111,6 +102,25 @@ module.exports = {
           err.errors.forEach((e) => (errors[e.path] = e.message));
         }
         throw new UserInputError("Bad input", { errors });
+      }
+    },
+    sendMessage: async (_, { to, content }, { user }) => {
+      try {
+        if (!user) throw new AuthenticationError("unauthenticated");
+        const recipient = await User.findOne({ where: { username: to } });
+        if (!recipient) throw new UserInputError("User not found");
+        if (content.trim() === "") {
+          throw new UserInputError("Message is empty");
+        }
+        const message = await Message.create({
+          from: user.username,
+          to,
+          content,
+        });
+        return message;
+      } catch (error) {
+        console.log(error);
+        throw error;
       }
     },
   },
