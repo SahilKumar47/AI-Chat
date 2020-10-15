@@ -3,16 +3,16 @@ import { Row, Col, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 import { useAuthDispatch } from "../context/authContext";
-import { useAuthState } from "../context/authContext";
+
 const Home = ({ history }) => {
   const dispatch = useAuthDispatch();
-  console.log(state);
+
   const logout = () => {
     dispatch({ type: "LOGOUT" });
     history.push("/login");
   };
   return (
-    <Row>
+    <Row className="bg-white justify-content-around">
       <Link to="/login">
         <Button variant="link">Login</Button>
       </Link>

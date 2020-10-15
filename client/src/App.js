@@ -9,6 +9,7 @@ import Register from "./pages/register";
 import Login from "./pages/login";
 import Home from "./pages/home";
 import { AuthProvider } from "./context/authContext";
+import DynamicRoute from "./utils/customRoute";
 
 function App() {
   return (
@@ -16,9 +17,11 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Container className="pt-5">
-            <Route path="/register" component={Register} />
-            <Route path="/login" component={Login} />
-            <Route path="/" exact component={Home} />
+            <Switch>
+              <DynamicRoute path="/register" component={Register} guest />
+              <DynamicRoute path="/login" component={Login} guest />
+              <DynamicRoute path="/" exact component={Home} authenticated />
+            </Switch>
           </Container>
         </BrowserRouter>
       </AuthProvider>
