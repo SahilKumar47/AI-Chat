@@ -1,7 +1,12 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
+import classNames from "classnames";
 
 import { Col, Image } from "react-bootstrap";
+import {
+  useMessageDispatch,
+  useMessageState,
+} from "../../context/messageContext";
 
 const GET_USERS = gql`
   query getUsers {
@@ -20,37 +25,55 @@ const GET_USERS = gql`
   }
 `;
 
-const User = ({ setSelectedUser }) => {
-  const { loading, data, error } = useQuery(GET_USERS);
+const User = () => {
+  const dispatch = useMessageDispatch();
+  const { users } = useMessageState();
+  const selectedUser = users?.find((u) => u.selected === true)?.username;
+  const { loading } = useQuery(GET_USERS, {
+    onCompleted: (data) => {
+      console.log(data);
+      dispatch({ type: "SET_USERS", payload: data.getUsers });
+    },
+    onError: (err) => console.log(err),
+  });
 
   let usermarkup;
-  if (!data || loading) {
+  if (!users || loading) {
     usermarkup = <p>loading...</p>;
-  } else if (data.getUsers.length < 0) {
+  } else if (users.length < 0) {
     usermarkup = <p>No users have joined yet</p>;
-  } else if (data.getUsers.length > 0) {
-    usermarkup = data.getUsers.map((user) => (
-      <div
-        className="d-flex p-3"
-        key={user.username}
-        onClick={() => setSelectedUser(user.username)}
-      >
-        <Image
-          src={user.imageUrl}
-          roundedCircle
-          className="mr-2"
-          style={{ width: 50, height: 50, objectFit: "cover" }}
-        />
-        <div>
-          <p className="text-success">{user.username}</p>
-          <p className="font-weight-light">
-            {user.latestMessage
-              ? user.latestMessage.content
-              : "You are connected :)"}
-          </p>
+  } else if (users.length > 0) {
+    usermarkup = users.map((user) => {
+      const selected = selectedUser === user.username;
+      console.log(selectedUser);
+      return (
+        <div
+          role="button"
+          className={classNames("user-div d-flex p-3", {
+            "bg-white": selected,
+          })}
+          key={user.username}
+          onClick={() =>
+            dispatch({ type: "SET_SELECTED_USER", payload: user.username })
+          }
+        >
+          <Image
+            src={user.imageUrl}
+            roundedCircle
+            className="mr-2"
+            style={{ width: 50, height: 50, objectFit: "cover" }}
+          />
+          <div>
+            <p className="text-success">{user.username}</p>
+            <p className="font-weight-light">
+              {user.latestMessage
+                ? user.latestMessage.content
+                : "You are connected :)"}
+            </p>
+          </div>
         </div>
-      </div>
-    ));
+      );
+    });
   }
   return (
     <Col xs={4} className="p-0 bg-secondary">
