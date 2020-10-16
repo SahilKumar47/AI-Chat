@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
-const { User } = require("../../models");
+const { User, Message } = require("../../models");
 const { CHAT_SECRET_KEY } = require("../../config/env.json");
 
 module.exports = {
@@ -13,8 +13,23 @@ module.exports = {
       try {
         if (!user) throw new AuthenticationError("Invalid/expired token");
 
-        const users = await User.findAll({
+        let users = await User.findAll({
+          attributes: ["username", "imageUrl", "createdAt"],
           where: { username: { [Op.ne]: user.username } },
+        });
+        const allUserMeassages = await Message.findAll({
+          where: {
+            [Op.or]: [{ from: user.username }, { to: user.username }],
+          },
+          order: [["createdAt", "DESC"]],
+        });
+        users = users.map((otherUser) => {
+          const latestMessage = allUserMeassages.find(
+            (msg) =>
+              msg.from === otherUser.username || msg.to === otherUser.username
+          );
+          otherUser.latestMessage = latestMessage;
+          return otherUser;
         });
         return users;
       } catch (err) {

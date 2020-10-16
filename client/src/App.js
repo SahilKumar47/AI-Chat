@@ -7,7 +7,7 @@ import { Switch, Route, BrowserRouter } from "react-router-dom";
 import "./App.scss";
 import Register from "./pages/register";
 import Login from "./pages/login";
-import Home from "./pages/home";
+import Home from "./pages/home/home";
 import { AuthProvider } from "./context/authContext";
 import DynamicRoute from "./utils/customRoute";
 
