@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Fragment } from "react";
 import { Col } from "react-bootstrap";
 import { gql, useLazyQuery } from "@apollo/client";
 
@@ -6,6 +6,8 @@ import {
   useMessageDispatch,
   useMessageState,
 } from "../../context/messageContext";
+
+import Message from "./Message";
 
 const GET_MESSAGES = gql`
   query getMessages($from: String!) {
@@ -53,13 +55,27 @@ const Messages = () => {
   } else if (messagesLoading) {
     selectedChatMarkup = <p>Loading...</p>;
   } else if (messages.length > 0) {
-    selectedChatMarkup = messages.map((msg) => (
-      <p key={msg.uuid}>{msg.content}</p>
+    selectedChatMarkup = messages.map((msg, index) => (
+      <Fragment>
+        <Message key={msg.uuid} message={msg} />
+        {index === messages.length - 1 && (
+          <div className="invisible">
+            <hr className="m-0" />
+          </div>
+        )}
+      </Fragment>
     ));
   } else if (messages.length === 0) {
     selectedChatMarkup = <p>You are now connected </p>;
   }
-  return <Col xs={8}>{selectedChatMarkup}</Col>;
+  return (
+    <Col
+      xs={8}
+      className="messages-box d-flex flex-column-reverse bg-secondary"
+    >
+      {selectedChatMarkup}
+    </Col>
+  );
 };
 
 export default Messages;
