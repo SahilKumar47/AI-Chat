@@ -57,13 +57,8 @@ const User = () => {
             dispatch({ type: "SET_SELECTED_USER", payload: user.username })
           }
         >
-          <Image
-            src={user.imageUrl}
-            roundedCircle
-            className="mr-2"
-            style={{ width: 50, height: 50, objectFit: "cover" }}
-          />
-          <div>
+          <Image src={user.imageUrl} className="user-image mr-2" />
+          <div className="d-none d-md-block">
             <p className="text-success">{user.username}</p>
             <p className="font-weight-light">
               {user.latestMessage
@@ -76,7 +71,7 @@ const User = () => {
     });
   }
   return (
-    <Col xs={4} className="p-0 bg-secondary">
+    <Col xs={2} md={4} className="p-0 bg-secondary">
       {usermarkup}
     </Col>
   );

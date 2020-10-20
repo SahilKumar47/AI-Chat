@@ -18,6 +18,7 @@ const Message = ({ message }) => {
           {moment(message.createdAt).format("MMMM DD, YYYY @ h:mm a")}
         </Tooltip>
       }
+      transition={false}
     >
       <div
         className={classNames("d-flex my-3", {
