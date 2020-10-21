@@ -1,6 +1,7 @@
 import React, { useEffect, Fragment, useState } from "react";
 import { Col, Form, FormGroup, FormControl } from "react-bootstrap";
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
+import classNames from "classnames";
 
 import {
   useMessageDispatch,
@@ -76,8 +77,9 @@ const Messages = () => {
 
   const submitMessage = (e) => {
     e.preventDefault();
-    if (content === "") return;
+    if (content.trim() === "" || !selectedUser) return;
     //Mutation of sending the message
+    setContent("");
     sendMessage({
       variables: {
         to: selectedUser.username,
@@ -88,9 +90,9 @@ const Messages = () => {
 
   let selectedChatMarkup;
   if (!messages && !messagesLoading) {
-    selectedChatMarkup = <p>Select a friend</p>;
+    selectedChatMarkup = <p className="info-text">Select a friend</p>;
   } else if (messagesLoading) {
-    selectedChatMarkup = <p>Loading...</p>;
+    selectedChatMarkup = <p className="info-text">Loading...</p>;
   } else if (messages.length > 0) {
     selectedChatMarkup = messages.map((msg, index) => (
       <Fragment key={msg.uuid}>
@@ -103,23 +105,30 @@ const Messages = () => {
       </Fragment>
     ));
   } else if (messages.length === 0) {
-    selectedChatMarkup = <p>You are now connected </p>;
+    selectedChatMarkup = <p className="info-text">You are now connected </p>;
   }
   return (
-    <Col xs={10} md={8} className=" bg-secondary">
+    <Col xs={10} md={8} className="message-col">
       <div className="messages-box d-flex flex-column-reverse">
         {selectedChatMarkup}
       </div>
       <div>
         <Form onSubmit={submitMessage}>
-          <FormGroup>
+          <FormGroup className="d-flex align-items-center">
             <FormControl
               type="text"
               className="message-input rounded-pill p-4 bg-secondary border-0"
               placeholder="Type a message"
               value={content}
-              OnChange={(e) => setContent(e.target.value)}
+              onChange={(e) => setContent(e.target.value)}
             />
+            <i
+              className={classNames("fas fa-paper-plane fa-2x ml-2", {
+                "text-primary": content.trim() !== "",
+              })}
+              onClick={submitMessage}
+              role="button"
+            ></i>
           </FormGroup>
         </Form>
       </div>
