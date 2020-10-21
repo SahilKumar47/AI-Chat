@@ -1,19 +1,55 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import { Row, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { gql, useSubscription } from "@apollo/client";
 
-import { useAuthDispatch } from "../../context/authContext";
+import { useAuthDispatch, useAuthState } from "../../context/authContext";
+import { useMessageDispatch } from "../../context/messageContext";
 
 import Users from "./Users";
 import Messages from "./Messages";
 
+const NEW_MESSAGE = gql`
+  subscription newMessage {
+    newMessage {
+      uuid
+      content
+      from
+      to
+      createdAt
+    }
+  }
+`;
+
 const Home = ({ history }) => {
-  const dispatch = useAuthDispatch();
+  const authDispatch = useAuthDispatch();
+  const { user } = useAuthState();
+  const messageDispatch = useMessageDispatch();
 
   const logout = () => {
-    dispatch({ type: "LOGOUT" });
+    authDispatch({ type: "LOGOUT" });
     window.location.href = "/login";
   };
+
+  const { data: messageData, error: messageError } = useSubscription(
+    NEW_MESSAGE
+  );
+
+  useEffect(() => {
+    if (messageError) console.log(messageError);
+    if (messageData) {
+      const message = messageData.newMessage;
+      const otherUser =
+        user.username === message.to ? message.from : message.to;
+      messageDispatch({
+        type: "ADD_MESSAGE",
+        payload: {
+          username: otherUser,
+          message: message,
+        },
+      });
+    }
+  }, [messageError, messageData]);
 
   return (
     <Fragment>
