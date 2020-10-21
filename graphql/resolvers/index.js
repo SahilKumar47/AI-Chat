@@ -5,7 +5,12 @@ module.exports = {
   Message: {
     createdAt: (parent) => parent.createdAt.toISOString(),
   },
-
+  User: {
+    createdAt: (parent) => parent.createdAt.toISOString(),
+  },
+  Reaction: {
+    createdAt: (parent) => parent.createdAt.toISOString(),
+  },
   Query: {
     ...userResolvers.Query,
     ...messageResolvers.Query,
