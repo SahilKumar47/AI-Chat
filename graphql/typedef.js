@@ -40,5 +40,6 @@ module.exports = gql`
   }
   type Subscription {
     newMessage: Message!
+    newReaction: Reaction!
   }
 `;
