@@ -71,7 +71,8 @@ const Message = ({ message }) => {
     >
       {sent && reactButton}
       <OverlayTrigger
-        placement={sent ? "right" : "left"}
+        // placement={sent ? "right" : "left"}
+        placement="top"
         overlay={
           <Tooltip>
             {moment(message.createdAt).format("MMMM DD, YYYY @ h:mm a")}

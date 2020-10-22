@@ -4,10 +4,18 @@ import { Link } from "react-router-dom";
 import { gql, useSubscription } from "@apollo/client";
 
 import { useAuthDispatch, useAuthState } from "../../context/authContext";
-import { useMessageDispatch } from "../../context/messageContext";
+import {
+  useMessageDispatch,
+  useMessageState,
+} from "../../context/messageContext";
 
 import Users from "./Users";
 import Messages from "./Messages";
+
+// Alan AI
+import alanBtn from "@alan-ai/alan-sdk-web";
+const alanKey =
+  "6749b00271dd3581b26b897bec4b19192e956eca572e1d8b807a3e2338fdd0dc/stage";
 
 const NEW_MESSAGE = gql`
   subscription newMessage {
@@ -40,6 +48,7 @@ const Home = ({ history }) => {
   const authDispatch = useAuthDispatch();
   const { user } = useAuthState();
   const messageDispatch = useMessageDispatch();
+  const { users } = useMessageState();
 
   const logout = () => {
     authDispatch({ type: "LOGOUT" });
@@ -53,6 +62,36 @@ const Home = ({ history }) => {
   const { data: reactionData, error: reactionError } = useSubscription(
     NEW_REACTION
   );
+
+  useEffect(() => {
+    if (users) {
+      alanBtn({
+        key: alanKey,
+        onConnectionStatus: (status) => {
+          console.log(`Connection is on ${status}`);
+        },
+        onCommand: ({ command, username }) => {
+          if (command === "type_message") {
+            alanBtn().playText("Ok sure");
+          } else if (command === "openUser") {
+            username = username.toLowerCase();
+            console.log(username);
+            console.log("users are", users);
+            if (!users.find((u) => u.username === username)) {
+              console.log("no user found");
+              alanBtn().playText(`No user found of username ${username}`);
+            } else {
+              alanBtn().playText(`Opening ${username}'s chat`);
+              messageDispatch({
+                type: "SET_SELECTED_USER",
+                payload: username,
+              });
+            }
+          }
+        },
+      });
+    }
+  }, [users]);
 
   useEffect(() => {
     if (messageError) console.log(messageError);
