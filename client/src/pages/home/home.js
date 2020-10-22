@@ -21,6 +21,21 @@ const NEW_MESSAGE = gql`
   }
 `;
 
+const NEW_REACTION = gql`
+  subscription newReaction {
+    newReaction {
+      uuid
+      content
+      createdAt
+      message {
+        uuid
+        to
+        from
+      }
+    }
+  }
+`;
+
 const Home = ({ history }) => {
   const authDispatch = useAuthDispatch();
   const { user } = useAuthState();
@@ -33,6 +48,10 @@ const Home = ({ history }) => {
 
   const { data: messageData, error: messageError } = useSubscription(
     NEW_MESSAGE
+  );
+
+  const { data: reactionData, error: reactionError } = useSubscription(
+    NEW_REACTION
   );
 
   useEffect(() => {
@@ -50,6 +69,24 @@ const Home = ({ history }) => {
       });
     }
   }, [messageError, messageData]);
+
+  useEffect(() => {
+    if (reactionError) console.log(reactionError);
+    if (reactionData) {
+      const reaction = reactionData.newReaction;
+      const otherUser =
+        user.username === reaction.message.to
+          ? reaction.message.from
+          : reaction.message.to;
+      messageDispatch({
+        type: "ADD_REACTION",
+        payload: {
+          username: otherUser,
+          reaction,
+        },
+      });
+    }
+  }, [reactionData, reactionError]);
 
   return (
     <Fragment>
