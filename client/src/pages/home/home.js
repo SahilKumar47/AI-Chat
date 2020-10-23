@@ -64,33 +64,19 @@ const Home = ({ history }) => {
   );
 
   useEffect(() => {
-    if (users) {
-      alanBtn({
-        key: alanKey,
-        onConnectionStatus: (status) => {
-          console.log(`Connection is on ${status}`);
-        },
-        onCommand: ({ command, username }) => {
-          if (command === "type_message") {
-            alanBtn().playText("Ok sure");
-          } else if (command === "openUser") {
-            username = username.toLowerCase();
-            console.log(username);
-            console.log("users are", users);
-            if (!users.find((u) => u.username === username)) {
-              console.log("no user found");
-              alanBtn().playText(`No user found of username ${username}`);
-            } else {
-              alanBtn().playText(`Opening ${username}'s chat`);
-              messageDispatch({
-                type: "SET_SELECTED_USER",
-                payload: username,
-              });
-            }
-          }
-        },
-      });
-    }
+    let btnInstance = alanBtn({
+      key: alanKey,
+      onCommand: ({ command, username, data }) => {
+        if (command === "readUserMessage") {
+          console.log(data);
+        } else if (command === "openUser") {
+          messageDispatch({
+            type: "SET_SELECTED_USER",
+            payload: username,
+          });
+        }
+      },
+    }).setVisualState({ data: users });
   }, [users]);
 
   useEffect(() => {
