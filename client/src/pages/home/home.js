@@ -68,8 +68,7 @@ const Home = ({ history }) => {
       let btnInstance = alanBtn({
         key: alanKey,
         onCommand: ({ command, username, data, msg }) => {
-          if (command === "readLastMessage") {
-          } else if (command === "openUser") {
+          if (command === "openUser") {
             messageDispatch({
               type: "SET_SELECTED_USER",
               payload: username,
