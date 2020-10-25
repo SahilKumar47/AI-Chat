@@ -64,19 +64,21 @@ const Home = ({ history }) => {
   );
 
   useEffect(() => {
-    let btnInstance = alanBtn({
-      key: alanKey,
-      onCommand: ({ command, username, data, msg }) => {
-        if (command === "readLastMessage") {
-        } else if (command === "openUser") {
-          messageDispatch({
-            type: "SET_SELECTED_USER",
-            payload: username,
-          });
-        }
-      },
-    });
-    btnInstance.setVisualState({ data: users });
+    if (user) {
+      let btnInstance = alanBtn({
+        key: alanKey,
+        onCommand: ({ command, username, data, msg }) => {
+          if (command === "readLastMessage") {
+          } else if (command === "openUser") {
+            messageDispatch({
+              type: "SET_SELECTED_USER",
+              payload: username,
+            });
+          }
+        },
+      });
+      btnInstance.setVisualState({ data: users });
+    }
   }, [users]);
 
   useEffect(() => {

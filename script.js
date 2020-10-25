@@ -23,7 +23,7 @@ intent("Open $(username* (.*)) (chat| chat box|)", (p) => {
   }
 });
 
-intent("Read me (all|) the messages", (p) => {
+intent("Read me (all|) the messages", async (p) => {
   let users = p.visual.data;
   if (users) {
     let selectedUser = users.find((u) => u.selected === true);
@@ -41,7 +41,7 @@ intent("Read me (all|) the messages", (p) => {
   }
 });
 
-intent("Read me the last message", (p) => {
+intent("Read me the last message", async (p) => {
   let users = p.visual.data;
   if (users) {
     let selectedUser = users.find((u) => u.selected === true);
@@ -54,7 +54,23 @@ intent("Read me the last message", (p) => {
           p.play(`You send ${msg.content} to ${msg.to}`);
         }
         p.play({ command: "readLastMessage", data: selectedUser });
+        p.play(`Would you like to send message to ${selectedUser.username}?`);
       }
     }
   }
+});
+
+const confirmation = context(() => {
+  intent("yes", async (p) => {});
+  intent("no", async (p) => {
+    let users = p.visual.data;
+    if (users) {
+      let selectedUser = users.find((u) => u.selected === true);
+      if (selectedUser) {
+        if (selectedUser.messages) {
+          p.play("Ok, no problem.");
+        }
+      }
+    }
+  });
 });
