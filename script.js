@@ -1,4 +1,7 @@
-
+// Use this sample to create your own voice commands
+intent("hello world", (p) => {
+  p.play("(hello|hi there)");
+});
 
 intent("Type me a message", (p) => {
   //      p.play("ok sure");
@@ -27,13 +30,10 @@ intent("Read me (all|) the messages", async (p) => {
     if (selectedUser) {
       if (selectedUser.messages) {
         for (let i = selectedUser.messages.length - 1; i >= 0; i--) {
-          p.play(`${selectedUser.messages[i].content}`);
+          await p.play(`${selectedUser.messages[i].content}`);
         }
         p.play({ command: "readUserMessage", data: selectedUser });
       }
-    } else if (!selectedUser) {
-      p.play("There are no messages to read");
-      p.play("send some messages..");
     }
   }
 });
