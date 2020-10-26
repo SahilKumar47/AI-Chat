@@ -57,8 +57,80 @@ intent("Read me the last message", async (p) => {
   }
 });
 
+intent("Type me a message", async (p) => {
+  let users = p.visual.data;
+  if (users) {
+    let selectedUser = users.find((u) => u.selected === true);
+    if (selectedUser) {
+      if (selectedUser.messages) {
+        p.play("ok, just say Add");
+        p.play("AND your message after it");
+      }
+    }
+  }
+});
+
+intent("add $(message* (.*))", async (p) => {
+  let users = p.visual.data;
+  if (users) {
+    let selectedUser = users.find((u) => u.selected === true);
+    if (selectedUser) {
+      if (selectedUser.messages) {
+        p.play("alright");
+        p.play({ command: "typeMessage", msg: p.message.value });
+        p.play("Do you want to send it");
+        p.then(setMessage);
+      }
+    }
+  }
+});
+
+intent("log me out", "log out", (p) => {
+  p.play("as you wish");
+  p.play({ command: "logoutUser" });
+});
+
+const setMessage = context(() => {
+  intent("yes", async (p) => {
+    let users = p.visual.data;
+    if (users) {
+      let selectedUser = users.find((u) => u.selected === true);
+      if (selectedUser) {
+        if (selectedUser.messages) {
+          p.play("ok");
+          p.play({ command: "sendMessage" });
+          p.play("sent");
+        }
+      }
+    }
+  });
+  intent("No", async (p) => {
+    let users = p.visual.data;
+    if (users) {
+      let selectedUser = users.find((u) => u.selected === true);
+      if (selectedUser) {
+        if (selectedUser.messages) {
+          p.play("sure");
+          p.play({ command: "resetMessage" });
+        }
+      }
+    }
+  });
+});
+
 const confirmation = context(() => {
-  intent("yes", async (p) => {});
+  intent("yes", async (p) => {
+    let users = p.visual.data;
+    if (users) {
+      let selectedUser = users.find((u) => u.selected === true);
+      if (selectedUser) {
+        if (selectedUser.messages) {
+          p.play("ok, say add");
+          p.play("and your message");
+        }
+      }
+    }
+  });
   intent("no", async (p) => {
     let users = p.visual.data;
     if (users) {

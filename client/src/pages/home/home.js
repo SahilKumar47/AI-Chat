@@ -81,6 +81,8 @@ const Home = ({ history }) => {
           } else if (command === "sendMessage") {
             document.getElementById("send").click();
             setVoiceMessage("");
+          } else if (command === "logoutUser") {
+            logout();
           }
         },
       });
