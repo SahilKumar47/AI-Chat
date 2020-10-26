@@ -78,6 +78,9 @@ const Home = ({ history }) => {
             setVoiceMessage(msg);
           } else if (command === "resetMessage") {
             setVoiceMessage("");
+          } else if (command === "sendMessage") {
+            document.getElementById("send").click();
+            setVoiceMessage("");
           }
         },
       });

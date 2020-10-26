@@ -54,6 +54,11 @@ const Messages = ({ voiceMessage }) => {
   });
 
   useEffect(() => {
+    if (voiceMessage.length > 0) setContent(voiceMessage);
+    else setContent("");
+  }, [voiceMessage]);
+
+  useEffect(() => {
     if (selectedUser && !selectedUser.messages) {
       getMessages({ variables: { from: selectedUser.username } });
     }
@@ -103,6 +108,7 @@ const Messages = ({ voiceMessage }) => {
   } else if (messages.length === 0) {
     selectedChatMarkup = <p className="info-text">You are now connected </p>;
   }
+  console.log(content);
   return (
     <Col xs={10} md={8} className="message-col p-0">
       <div className="messages-box d-flex flex-column-reverse p-3">
@@ -119,6 +125,7 @@ const Messages = ({ voiceMessage }) => {
               onChange={(e) => setContent(e.target.value)}
             />
             <i
+              id="send"
               className={classNames("fas fa-paper-plane fa-2x ml-2", {
                 "text-primary": content.trim() !== "",
               })}
