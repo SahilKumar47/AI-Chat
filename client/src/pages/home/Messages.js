@@ -38,7 +38,7 @@ const GET_MESSAGES = gql`
   }
 `;
 
-const Messages = () => {
+const Messages = ({ voiceMessage }) => {
   const { users } = useMessageState();
   const [content, setContent] = useState("");
   const dispatch = useMessageDispatch();
@@ -115,7 +115,7 @@ const Messages = () => {
               type="text"
               className="message-input rounded-pill p-4 bg-secondary border-0"
               placeholder="Type a message"
-              value={content}
+              value={content.length === 0 ? voiceMessage : content}
               onChange={(e) => setContent(e.target.value)}
             />
             <i

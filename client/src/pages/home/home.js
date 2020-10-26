@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Row, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { gql, useSubscription } from "@apollo/client";
@@ -49,6 +49,7 @@ const Home = ({ history }) => {
   const { user } = useAuthState();
   const messageDispatch = useMessageDispatch();
   const { users } = useMessageState();
+  const [voiceMessage, setVoiceMessage] = useState("");
 
   const logout = () => {
     authDispatch({ type: "LOGOUT" });
@@ -67,12 +68,16 @@ const Home = ({ history }) => {
     if (user) {
       let btnInstance = alanBtn({
         key: alanKey,
-        onCommand: ({ command, username, data, msg }) => {
+        onCommand: ({ command, username, msg }) => {
           if (command === "openUser") {
             messageDispatch({
               type: "SET_SELECTED_USER",
               payload: username,
             });
+          } else if (command === "typeMessage") {
+            setVoiceMessage(msg);
+          } else if (command === "resetMessage") {
+            setVoiceMessage("");
           }
         },
       });
@@ -114,6 +119,7 @@ const Home = ({ history }) => {
     }
   }, [reactionData, reactionError]);
 
+  console.log(voiceMessage);
   return (
     <Fragment>
       <Row className="bg-white justify-content-around">
@@ -129,7 +135,7 @@ const Home = ({ history }) => {
       </Row>
       <Row>
         <Users />
-        <Messages />
+        <Messages voiceMessage={voiceMessage} />
       </Row>
     </Fragment>
   );
