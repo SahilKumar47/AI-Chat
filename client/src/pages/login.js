@@ -8,7 +8,7 @@ import { Zoom } from "react-reveal";
 import { useAuthDispatch } from "../context/authContext";
 
 const LOGIN_USER = gql`
-  query login($username: String!, $password: String!) {
+  query login($username: String!, $password: String!) { 
     login(username: $username, password: $password) {
       username
       email
