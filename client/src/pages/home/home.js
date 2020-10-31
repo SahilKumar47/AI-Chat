@@ -11,6 +11,7 @@ import {
 
 import Users from "./Users";
 import Messages from "./Messages";
+import VoiceModal from "../../utils/VoiceModal";
 
 // Alan AI
 import alanBtn from "@alan-ai/alan-sdk-web";
@@ -127,6 +128,7 @@ const Home = ({ history }) => {
   console.log(voiceMessage);
   return (
     <Fragment>
+      {localStorage.getItem("modal") ? <VoiceModal /> : null}
       <Row className="bg-white justify-content-around">
         <Link to="/login">
           <Button variant="link">Login</Button>

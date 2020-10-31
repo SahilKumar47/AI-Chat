@@ -11,6 +11,7 @@ if (token) {
   const expiredAt = new Date(decodedToken.exp * 1000);
   if (new Date() > expiredAt) {
     localStorage.removeItem("token");
+    localStorage.removeItem("modal");
     user = null;
   } else {
     user = decodedToken;
@@ -23,12 +24,14 @@ const authReducer = (state, action) => {
   switch (action.type) {
     case "LOGIN":
       localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("modal", true);
       return {
         ...state,
         user: action.payload,
       };
     case "LOGOUT":
       localStorage.removeItem("token");
+      localStorage.removeItem("modal");
       return {
         ...state,
         user: null,
