@@ -6,9 +6,9 @@ import Tada from "react-reveal/Tada";
 import { Zoom } from "react-reveal";
 
 import { useAuthDispatch } from "../context/authContext";
-
+ 
 const LOGIN_USER = gql`
-  query login($username: String!, $password: String!) {
+  query login($username: String!, $password: String!) { 
     login(username: $username, password: $password) {
       username
       email
@@ -29,7 +29,7 @@ export default function Register(props) {
 
   const [loginUser, { loading }] = useLazyQuery(LOGIN_USER, {
     onError: (err) => setErrors(err.graphQLErrors[0].extensions.errors),
-    onCompleted(data) {
+    onCompleted(data) { 
       dispatch({ type: "LOGIN", payload: data.login });
       window.location.href = "/";
     },
