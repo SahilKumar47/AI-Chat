@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
 const { User, Message } = require("../../models");
-const { CHAT_SECRET_KEY } = require("../../config/env.json");
 
 module.exports = {
   Query: {
@@ -63,7 +62,7 @@ module.exports = {
             username: user.username,
             email: user.email,
           },
-          CHAT_SECRET_KEY,
+          process.env.CHAT_SECRET_KEY,
           { expiresIn: 60 * 60 }
         );
         return {

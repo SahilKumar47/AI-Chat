@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const { PubSub } = require("apollo-server");
-const { CHAT_SECRET_KEY } = require("../config/env.json");
 
 const pubsub = new PubSub();
 
@@ -12,7 +11,7 @@ module.exports = (context) => {
     token = context.connection.context.Authorization.split("Bearer ")[1];
   }
   if (token) {
-    jwt.verify(token, CHAT_SECRET_KEY, (err, decodedToken) => {
+    jwt.verify(token, process.env.CHAT_SECRET_KEY, (err, decodedToken) => {
       context.user = decodedToken;
     });
   }
